@@ -1,7 +1,7 @@
 ﻿# Event Log Checker - Enhanced Edition
 # Version: 1.0.0
 # GitHub: https://github.com/mkolbe1/EventLogChecker
-$script:Version = "1.0.0"
+$script:Version = "1.0.1"
 $script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/main/EventLogChecker.ps1"
 
 
@@ -395,7 +395,7 @@ function Show-About {
         Write-Host ""
         Write-Host "  --------------------------------------------------------------" -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "  This product was originally created as a test for an AI" -ForegroundColor Gray
+        Write-Host "  This cool product was originally created as a test for an AI" -ForegroundColor Gray
         Write-Host "  generated code, but after some time I kept adding onto it." -ForegroundColor Gray
         Write-Host ""
         Write-Host "  --------------------------------------------------------------" -ForegroundColor DarkGray
