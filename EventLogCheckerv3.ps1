@@ -1,4 +1,9 @@
-﻿# Event Log Checker - Enhanced Edition v2.0
+﻿# Event Log Checker - Enhanced Edition
+# Version: 1.0.0
+# GitHub: https://github.com/mkolbe1/EventLogChecker
+$script:Version = "1.0.0"
+$script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/main/EventLogChecker.ps1"
+
 
 # Self-relaunch with bypass if constrained
 if ($ExecutionContext.SessionState.LanguageMode -eq 'ConstrainedLanguage') {
@@ -15,6 +20,65 @@ $script:Config = @{
     ReportPath   = [Environment]::GetFolderPath("Desktop")
     MaxEvents    = 0
     ShowVerbose  = $true
+}
+
+
+function Check-ForUpdates {
+    try {
+        Write-Host "  >> " -ForegroundColor DarkCyan -NoNewline
+        Write-Host "Checking for updates" -ForegroundColor Gray -NoNewline
+
+        $webClient = New-Object System.Net.WebClient
+        $remoteContent = $webClient.DownloadString($script:GitHubRawUrl)
+
+        $remoteVersion = $null
+        foreach ($line in ($remoteContent -split "`n")) {
+            if ($line -match '^\$script:Version\s*=\s*"([^"]+)"') {
+                $remoteVersion = $matches[1]
+                break
+            }
+        }
+
+        if ($null -eq $remoteVersion) {
+            Write-Host ".............. Could not read remote version" -ForegroundColor DarkGray
+            return
+        }
+
+        $current = [Version]$script:Version
+        $remote  = [Version]$remoteVersion
+
+        if ($remote -gt $current) {
+            Write-Host ".............. Update available!" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "  +--------------------------------------------------------------+" -ForegroundColor Yellow
+            Write-Host "  |  UPDATE AVAILABLE                                            |" -ForegroundColor Yellow
+            Write-Host "  |  Current version : $($script:Version.PadRight(38))|" -ForegroundColor Yellow
+            Write-Host "  |  New version     : $($remoteVersion.PadRight(38))|" -ForegroundColor Yellow
+            Write-Host "  +--------------------------------------------------------------+" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "  Would you like to update now? [Y/N]: " -ForegroundColor White -NoNewline
+            $answer = (Read-Host).Trim().ToUpper()
+
+            if ($answer -eq "Y") {
+                Write-Host ""
+                Write-Host "  Downloading update..." -ForegroundColor Yellow
+                $scriptPath = $PSCommandPath
+                $tempPath   = "$scriptPath.tmp"
+                $bytes = [System.Text.Encoding]::UTF8.GetPreamble() + [System.Text.Encoding]::UTF8.GetBytes($remoteContent)
+                [System.IO.File]::WriteAllBytes($tempPath, $bytes)
+                Write-Host "  Applying update and relaunching..." -ForegroundColor Yellow
+                $cmd = "Start-Sleep 2; Copy-Item '$tempPath' '$scriptPath' -Force; Remove-Item '$tempPath' -Force; Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -File `"$scriptPath`"'"
+                Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -Command $cmd"
+                exit
+            } else {
+                Write-Host "  Skipping update. Restart anytime to be prompted again." -ForegroundColor DarkGray
+            }
+        } else {
+            Write-Host ".............. Up to date (v$($script:Version))" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host ".............. Could not reach GitHub (offline?)" -ForegroundColor DarkGray
+    }
 }
 
 function Load-Config {
@@ -493,6 +557,7 @@ function Quit-App {
 
 # ENTRY POINT
 Load-Config
+Check-ForUpdates
 Show-BootVerbose
 
 while ($true) {
