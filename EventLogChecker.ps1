@@ -2,7 +2,7 @@
 # Version: 1.0.0
 # GitHub: https://github.com/mkolbe1/EventLogChecker
 $script:Version = "1.0.5"
-$script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/main/EventLogChecker.ps1"
+$script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/refs/heads/main/EventLogChecker.ps1"
 
 
 # Self-relaunch with bypass if constrained
