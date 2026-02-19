@@ -1,7 +1,7 @@
 ﻿# Event Log Checker - Enhanced Edition
-# Version: 1.0.1
+# Version: 1.0.0
 # GitHub: https://github.com/mkolbe1/EventLogChecker
-$script:Version = "1.0.1"
+$script:Version = "1.0.3"
 $script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/main/EventLogChecker.ps1"
 
 
@@ -22,6 +22,19 @@ $script:Config = @{
     ShowVerbose  = $true
 }
 
+
+function Get-LatestCommitMessage {
+    try {
+        $apiUrl = "https://api.github.com/repos/mkolbe1/EventLogChecker/commits/main"
+        $webClient = New-Object System.Net.WebClient
+        $webClient.Headers.Add("User-Agent", "EventLogChecker")
+        $json = $webClient.DownloadString($apiUrl)
+        if ($json -match '"message"\s*:\s*"([^"\\n]+)') {
+            return $matches[1].Trim()
+        }
+    } catch { }
+    return "No patch notes available"
+}
 
 function Check-ForUpdates {
     try {
@@ -50,10 +63,17 @@ function Check-ForUpdates {
         if ($remote -gt $current) {
             Write-Host ".............. Update available!" -ForegroundColor Green
             Write-Host ""
+
+            $patchNotes = Get-LatestCommitMessage
+            $verPad     = $script:Version.PadRight(38)
+            $remPad     = $remoteVersion.PadRight(38)
+            $notePad    = if ($patchNotes.Length -gt 38) { $patchNotes.Substring(0,35) + "..." } else { $patchNotes.PadRight(38) }
+
             Write-Host "  +--------------------------------------------------------------+" -ForegroundColor Yellow
             Write-Host "  |  UPDATE AVAILABLE                                            |" -ForegroundColor Yellow
-            Write-Host "  |  Current version : $($script:Version.PadRight(38))|" -ForegroundColor Yellow
-            Write-Host "  |  New version     : $($remoteVersion.PadRight(38))|" -ForegroundColor Yellow
+            Write-Host "  |  Current version : $verPad|" -ForegroundColor Yellow
+            Write-Host "  |  New version     : $remPad|" -ForegroundColor Yellow
+            Write-Host "  |  Patch notes     : $notePad|" -ForegroundColor Yellow
             Write-Host "  +--------------------------------------------------------------+" -ForegroundColor Yellow
             Write-Host ""
             Write-Host "  Would you like to update now? [Y/N]: " -ForegroundColor White -NoNewline
@@ -395,7 +415,7 @@ function Show-About {
         Write-Host ""
         Write-Host "  --------------------------------------------------------------" -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "  This cool product was originally created as a test for an AI" -ForegroundColor Gray
+        Write-Host "  This product was originally created as a test for an AI" -ForegroundColor Gray
         Write-Host "  generated code, but after some time I kept adding onto it." -ForegroundColor Gray
         Write-Host ""
         Write-Host "  --------------------------------------------------------------" -ForegroundColor DarkGray
