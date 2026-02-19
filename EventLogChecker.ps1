@@ -1,7 +1,7 @@
 ﻿# Event Log Checker - Enhanced Edition
 # Version: 1.0.0
 # GitHub: https://github.com/mkolbe1/EventLogChecker
-$script:Version = "1.0.3"
+$script:Version = "1.0.4"
 $script:GitHubRawUrl = "https://raw.githubusercontent.com/mkolbe1/EventLogChecker/main/EventLogChecker.ps1"
 
 
